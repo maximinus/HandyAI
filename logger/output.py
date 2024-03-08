@@ -4,12 +4,12 @@ import logging
 DEFAULT_LOGGER_NAME = 'HandyLogger'
 
 
-def setup_logger(name):
+def setup_logger(name=DEFAULT_LOGGER_NAME):
     # Create a custom logger
-    logger = logging.getLogger(DEFAULT_LOGGER_NAME)
+    default_logger = logging.getLogger(name)
 
     # Set the log level
-    logger.setLevel(logging.DEBUG)
+    default_logger.setLevel(logging.DEBUG)
 
     # Create handlers
     stdout_handler = logging.StreamHandler(sys.stdout)
@@ -19,7 +19,7 @@ def setup_logger(name):
     stdout_handler.setFormatter(stdout_format)
 
     # Add handlers to the logger
-    logger.addHandler(stdout_handler)
+    default_logger.addHandler(stdout_handler)
     return logger
 
 
