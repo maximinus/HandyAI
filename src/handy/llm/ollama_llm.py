@@ -1,6 +1,6 @@
 import ollama
 from handy.logger.output import logger
-from .base import SingleChat, BaseLLM
+from .base import SingleChat, SingleQuery, BaseLLM
 
 from datetime import datetime
 
@@ -11,34 +11,47 @@ from datetime import datetime
 # https://github.com/ollama/ollama/issues/2217
 #   Keep in mind that the MESSAGE commands only work with the /api/chat endpoint and do not work with /api/generate
 
+
 class Ollama(BaseLLM):
     def __init__(self, model_name: str):
         super().__init__()
         self.model_name = model_name
 
-    def message(self, text: str) -> SingleChat:
+    def message(self, text: str) -> SingleQuery:
+        request = SingleChat(user='user', text=text, timestamp=datetime.now())
         try:
             result = ollama.generate(model=self.model_name, prompt=text)
-            return SingleChat(result)
+            response = SingleChat(user=self.model_name,
+                                  text=result['response'],
+                                  timestamp=datetime.now(),
+                                  was_response=True)
+            return SingleQuery(request, response)
         except ollama.ResponseError as ex:
             logger.error(f'Ollama error: {ex}')
+        return SingleQuery(request, SingleChat.get_error(was_response=True))
 
-    def get_history_in_ollama_format(self) -> list[dict]:
-        return [{'role': x.user, 'content': x.text} for x in self.history]
+    def get_history_in_ollama_format(self, history: list[SingleQuery]) -> list[dict]:
+        messages = []
+        for i in history:
+            messages.append({'role': i.request.user, 'content': i.request.text})
+            messages.append({'role': i.response.user, 'content': i.response.text})
+        return messages
 
-    def message_with_history(self, text: str) -> SingleChat:
+    def message_with_history(self, text: str, history: list[SingleQuery] | None = None) -> SingleQuery:
+        all_chats = []
+        if history is not None:
+            all_chats = self.get_history_in_ollama_format(history)
+        # add the current message
+        all_chats.append({'role': 'user', 'content': text})
+        print(all_chats)
+        request = SingleChat(user='user', text=text, timestamp=datetime.now())
         try:
-            # we have to send the history as well
-            all_chats = self.get_history_in_ollama_format()
-            all_chats.append({'role': 'user', 'content': text})
             result = ollama.chat(model=self.model_name, messages=all_chats)
-            # it worked, so store the history
-            self.history.append(SingleChat(user='user', text=text, timestamp=datetime.now()))
             response = SingleChat(user=result['message']['role'],
                                   text=result['message']['content'],
                                   timestamp=datetime.now(),
                                   was_response=True)
-            self.history.append(response)
-            return response
+            return SingleQuery(request, response)
         except ollama.ResponseError as ex:
             logger.error(f'Ollama error: {ex}')
+        return SingleQuery(request, SingleChat.get_error(was_response=True))

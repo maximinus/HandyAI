@@ -19,17 +19,29 @@ class SingleChat:
         return response
 
 
+class SingleQuery:
+    """
+    A request and it's response
+    """
+    def __init__(self, request: SingleChat, response: SingleChat):
+        self.request = request
+        self.response = response
+
+    def get_text_response(self) -> str:
+        return self.response.text
+
+
 class BaseLLM:
     def __init__(self):
         self.history = []
 
-    def message(self, text: str) -> str:
+    def message(self, text: str) -> SingleChat:
         # pass a single message and get a single answer
-        pass
+        return ''
 
-    def message_with_history(self, text: str) -> str:
+    def message_with_history(self, text: str) -> SingleChat:
         # pass a single message with chat history
-        pass
+        return ''
 
     def clear_history(self):
         # delete the entire history

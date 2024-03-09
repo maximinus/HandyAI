@@ -1,4 +1,4 @@
-from handy.llm import BaseLLM
+from handy.llm.base import BaseLLM
 
 # An agent is an llm wrapped up with some extra data
 # They act like all transformers: they input text and then and output text.
@@ -7,10 +7,17 @@ from handy.llm import BaseLLM
 
 
 class Agent:
-    def __init__(self, llm: BaseLLM, name: str, description: str, workers: list|None):
+    def __init__(self, llm: BaseLLM, role: str, description: str = '', workers: list | None = None):
         self.llm = llm
-        self.name = name
+        self.role = role
         self.description = description
         if workers is None:
             workers = []
         self.workers = workers
+
+    def solve_task(self, task) -> str:
+        # given a task, solve it
+        # we need to create the prompt.
+        task_prompt = f'You are a {self.role}. {task.description}.'
+        response = self.llm.message_with_history(task_prompt)
+        return response.text

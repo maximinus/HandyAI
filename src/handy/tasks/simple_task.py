@@ -19,7 +19,7 @@ from typing import Callable
 
 
 class Task:
-    def __init__(self, description: str, completed_check: Callable|None):
+    def __init__(self, description: str, completed_check: Callable | None = None):
         self.description = description
         self.completed_check = completed_check
 
