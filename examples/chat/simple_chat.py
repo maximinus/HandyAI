@@ -1,4 +1,4 @@
-from handy.llm import Ollama
+from handy.llm.ollama_llm import Ollama
 
 # simple example of chatting with an llm
 # the llm will keep a record of the chat history
@@ -13,7 +13,8 @@ def chat_example_with_history():
         request = input('> ')
         if request == 'exit':
             return
-        llm.message_with_history(request)
+        response = llm.message_with_history(request)
+        print(response.text)
 
 
 if __name__ == '__main__':

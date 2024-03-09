@@ -1,18 +1,20 @@
+from datetime import datetime
+
+
 class SingleChat:
-    def __init__(self, person, text):
-        self.person = person
+    """
+    Some text either sent to something (was_response=False), or received (was_response=True)
+    """
+    def __init__(self, user: str = '', text: str = '', timestamp: datetime|None = None, was_response=False):
+        self.user = user
         self.text = text
-
-
-class ChatResponse:
-    def __init__(self, response):
-        self.timestamp = response['created_at']
-        self.text = response['response']
+        self.timestamp = timestamp
+        self.was_response = was_response
         self.error = False
 
     @classmethod
-    def get_error_response(cls):
-        response = cls({'created_at': '', 'response': 'Error'})
+    def get_error(cls, was_response=False):
+        response = cls(was_response=was_response)
         response.error = True
         return response
 

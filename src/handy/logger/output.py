@@ -20,7 +20,7 @@ def setup_logger(name=DEFAULT_LOGGER_NAME):
 
     # Add handlers to the logger
     default_logger.addHandler(stdout_handler)
-    return logger
+    return default_logger
 
 
 logger = setup_logger()
