@@ -7,7 +7,7 @@ OLLAMA_MODEL = 'mistral:7b-instruct-v0.2-q8_0'
 
 def single_chat_example():
     llm = Ollama(OLLAMA_MODEL)
-    response = llm.message('How high should a mountain be?')
+    response = llm.message('How big is the moon?')
     print(response.text)
 
 
