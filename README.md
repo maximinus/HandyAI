@@ -15,11 +15,11 @@ An llm can be seen as a simple box: we put in text, and we get out text.
 
 However, we can do some very clever things with just this simple box.
 
-We can put in previous messages, so the llm has a history to work with: this gives us chat.
-We can add in documentation before our message, so the llm has more data to work with: this gives the llm the ability to talk about data.
-We can check the users message and see if we have similar sorts of phrases in a database: this is a RAG system.
-We can create 2 or more llms and get them to talk to each other: this is a multi-agent system.
-We can tell an llm that a message in a special format will perform some action: this gives us tasks.
+* We can put in previous messages, so the llm has a history to work with: this gives us chat.
+* We can add in documentation before our message, so the llm has more data to work with: this gives the llm the ability to talk about data.
+* We can check the users message and see if we have similar sorts of phrases in a database: this is a RAG system.
+* We can create 2 or more llms and get them to talk to each other: this is a multi-agent system.
+* We can tell an llm that a message in a special format will perform some action: this gives us tasks.
 
 We should be able to reason about all of this easily; the cognitive load should be fairly light and thus the code should also be simple.
 *The majority of the work we do is based on language and data, thus we should use language and data in our definitions, not code*
