@@ -32,14 +32,14 @@ Currently, Handy is in a very early development stage.
 
 ## Examples
 
-Single line of chat with Ollama
+Single line of chat with Ollama model
 
 ```
-from handy.llm import Ollama
+from handy.llm.ollama_llm import Ollama
 
 llm = Ollama('mistral:7b-instruct-v0.2-q8_0')
 response = llm.message('How big is the moon?')
-print(response.text)
+print(response.get_text_response())
 ```
 
 Simple chat with history
@@ -48,10 +48,12 @@ Simple chat with history
 from handy.llm.ollama_llm import Ollama
 
 llm = Ollama('mistral:7b-instruct-v0.2-q8_0')
+history = []
 while True:
     request = input('> ')
     if request == 'exit':
-        return
-    response = llm.message_with_history(request)
-    print(response.text)
+        break
+    response = llm.message_with_history(request, history)
+    history.append(response)
+    print(response.get_text_response())
 ```
