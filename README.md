@@ -45,13 +45,13 @@ print(response.text)
 Simple chat with history
 
 ```
-from handy.llm import Ollama
+from handy.llm.ollama_llm import Ollama
 
-llm = Ollama(OLLAMA_MODEL)
+llm = Ollama('mistral:7b-instruct-v0.2-q8_0')
 while True:
-    request = input('Enter your message: ')
+    request = input('> ')
     if request == 'exit':
         return
     response = llm.message_with_history(request)
-    print(f'LLM: {response.text}')
+    print(response.text)
 ```
