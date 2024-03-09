@@ -1,5 +1,5 @@
 import ollama
-from logger.output import logger
+from handy.logger import logger
 
 
 class SingleChat:

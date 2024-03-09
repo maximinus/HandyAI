@@ -1,0 +1,23 @@
+[project]
+name = 'handy'
+version = '0.1.0'
+authors = [
+  { name='Chris Handy', email='maximinus@gmail.com'},
+]
+description = 'LLM library for manipulating AI agents'
+readme = 'README.md'
+requires-python = '>=3.11'
+dependencies = ['docker>=7.0.0']
+classifiers = [
+    'Programming Language :: Python :: 3',
+    'License :: OSI Approved :: Apache-2.0',
+    'Operating System :: OS Independent',
+]
+
+[project.urls]
+Homepage = 'https://github.com/maximinus/HandyAI'
+Issues = 'https://github.com/maximinus/HandyAI/issues'
+
+[build-system]
+requires = ['setuptools>=42']
+build-backend = 'setuptools.build_meta'
