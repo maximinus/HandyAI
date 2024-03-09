@@ -8,43 +8,29 @@ import tempfile
 from pathlib import Path
 from docker.errors import ImageNotFound, BuildError, APIError, ContainerError
 
-# how should a tool look?
+from simple_tool import Tool
+
 
 """
-A tool is used by an agent.
-The tool is given text and returns text, really just like an agent
-So a tool is just another transformer, except it might throw errors
-So a tool should:
+A tool is again, something that consumes text and returns text.
+The simplest tool is an agent! it consumes text and returns some. It's got leader text as well.
+Sounds trivial, but important; if there are more than 2 agents on a task then code-wise they are just other tools.
+But that could be seen as the null tool.
+The real use of a tool is to connect with the real world in some way.
+Read a webpage, lookup some meaning, run some code, etc etc
+We should say that a tool is "invisible", "safe" or "open"
+Invisible means that the tool is a function that does not connect with the real world, i.e. files, the web
+Safe means that the tool will read things, or ask for things, but it will not do anything
+    It might read files, scour the web, check a files size
+Open means the tool could control something in some way. It might write to a DB, create a file or similar.
+
+A tool should:
 
 1: Take some text
 2: Do something with it
 3: Reply with what happened
 4: If the input text was wrong, the tool should say why (if it can)
-
-Agents
-When we talk of agents, we mean again of boxes that input text and then and output text.
-Agents normally have a memory and also some leader text
-
-
-Tasks
-A task is something we would like to do.
-What we mean by *do* is very important.
-An llm by default can only ever convert text to text.
-It's response may be right, or it may be wrong, and the for the interesting cases the latter is usual.
-You can use a tool to determine if something is correct, however a tool must be defined in Python.
-In theory you can let an llm determine if something it correct, however it could always be wrong.
-A task does the usual thing; ultimately it takes in some text, and it returns some text.
-
-A simple task would just be one agent. It would read in your text and then return some text.
-Then:
-    * Some more text is put in, i.e. a conversation is started
-    * It decides it has finished (which is always after the first response with no tool)
-    * It has some way of testing correctness, in which it may try to fix itself and therefore try many times.
-    
-A more complex example could be 3 or 4 llms.
-For this task you need a manger who has the ability to tell other agents to do the work.
 """
-
 
 DEFAULT_PYTHON_VERSION = '3.11'
 DEFAULT_DOCKER_TAG = 'crew-python-runner'
@@ -103,6 +89,7 @@ class PythonResult:
 class DockerRunner:
     def __init__(self, version=DEFAULT_PYTHON_VERSION):
         self.version = version
+        # TODO: Do not start runner, or even check docker, until the service is called
         self.client = docker.from_env()
         self.runner = self.start_runner()
 
@@ -141,25 +128,18 @@ class DockerRunner:
         return PythonResult(exit_code, output)
 
 
-# need to get rid of this somehow
-# maybe make a singleton that shares some data?
 # the runner should likely not try to pull in the docker image, at least not by default
 runner = DockerRunner()
 
 
-"""
-A tool is again, something that consumes text and returns text.
-The simplest tool is an agent! it consumes text and returns some. It's got leader text as well.
-Sounds trivial, but important; if there are more than 2 agents on a task then code-wise they are just other tools.
-But that could be seen as the null tool.
-The real use of a tool is to connect with the real world in some way.
-Read a webpage, lookup some meaning, run some code, etc etc
-We should say that a tool is "invisible", "safe" or "open"
-Invisible means that the tool is a function that does not connect with the real world, i.e. files, the web
-Safe means that the tool will read things, or ask for things, but it will not do anything
-    It might read files, scour the web, check a files size
-Open means the tool could control something in some way. It might write to a DB, create a file or similar.
+# a tool will need to communicate via json. So we need to define the json structure somehow
+class PythonRunner(Tool):
+    def __init__(self):
+        super().__init__()
+        self.description = 'Tool to run Python code'
+        self.function = self.run_python_code
+        self.input_format = '{"code":"The python code to run"}'
+        self.output_format = '{"output":"The terminal output of the code"}'
 
-Here's our tool to call python code
-"""
-
+    def run_python_code(self, python_code) -> str:
+        runner.run_python(python_code)
