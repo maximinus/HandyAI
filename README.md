@@ -1,4 +1,4 @@
-# Handy
+# Handy.AI
 
 A python library to make interactions with llms (large language models) simple.
 
