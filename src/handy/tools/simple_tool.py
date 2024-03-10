@@ -1,25 +1,32 @@
-import json
+import inspect
+
 from typing import Callable, Any
 
 # a tool will need to communicate via json. So we need to define the json structure somehow
 
 
 class Tool:
-    def __init__(self, description: str = '', function: Callable[[Any], str]|None = None, input_format: str = ''):
-        self.description = description
-        self.function = function
-        self.input_format = input_format
+    def __init__(self, func: Callable):
+        self.description = func.__doc__
+        self.function = func
+        self.name = func.__name__
+        self.json_string = self.get_func_as_json()
 
-    def describe(self) -> str:
-        # TODO: describes the tool to the llm
-        return ''
+    def get_func_as_json(self):
+        signature = inspect.signature(self.function)
+        args = [f'"tool": "{self.name}"']
+        for param in signature.parameters.values():
+            # we only allow numbers and strings
+            data_type = param.annotation
+            if data_type is float:
+                args.append(f'"{param.name}": SOME_NUMBER')
+            elif data_type is str:
+                args.append(f'"{param.name}": "SOME_TEXT"')
+            else:
+                raise ValueError(f'Tool does not allow type {str(data_type)}')
+        json_args = ', '.join(args)
+        return f"{{{json_args}}}"
 
-    def run(self, json_data: str) -> str:
-        if self.function is None:
-            return ''
-        try:
-            function_arguments = json.loads(json_data)
-        except json.decoder.JSONDecodeError as ex:
-            # TODO: Something went wrong. Clarify for the sender
-            return f'JSON error on input json: {ex}'
-        return self.function(function_arguments)
+    def __repr__(self):
+        # also describes the tool to the llm
+        return f'{self.description}. To use the tool, return json like {self.json_string}.'
