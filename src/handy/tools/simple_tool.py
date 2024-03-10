@@ -7,7 +7,7 @@ from typing import Callable, Any
 
 class Tool:
     def __init__(self, func: Callable):
-        self.description = func.__doc__
+        self.description = func.__doc__.strip()
         self.function = func
         self.name = func.__name__
         self.json_string = self.get_func_as_json()
@@ -29,4 +29,4 @@ class Tool:
 
     def __repr__(self):
         # also describes the tool to the llm
-        return f'{self.description}. To use the tool, return json like {self.json_string}.'
+        return f'{self.description} To use this tool, return json like {self.json_string}.'
