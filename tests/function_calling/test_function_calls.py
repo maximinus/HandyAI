@@ -10,7 +10,7 @@ from handy.tools.simple_tool import Tool
 # 3: The response was json and matched a tool
 
 example_argument = """
-You answer to this request MUST be a valid json string, in one of the formats specified below.
+Your answer to this request MUST be a valid json string, in one of the formats specified below.
 There are %total% different tools you can use to help in solving my problem.
 I will now describe the tools and the json response they require:
 %tools%
@@ -19,7 +19,18 @@ For these tools, replace SOME_TEXT or SOME_NUMBER with your own values.
 If you use a tool I will reply with the entire chat history as well as the information the tool provided,
 which makes answering the question possible the next time we chat.
 The question I would like answered is: %question%
-Remember, you must answer ONLY with valid json.
+Remember, you must answer ONLY with valid json, and nothing else.
+"""
+
+best_shows = """
+Internet search replied
+1: 24th June 1978, Oregon - Awesome Truckin' jam
+2: 8th Feb, Washington DC - Killer Let It Grow > Space sequence
+3: 31st Dec, Winterland, S.F. - Trippy Scarlet Fire
+
+If you wish to return an answer, you must reply with this json format:
+{"answer": "SOME_TEXT"}
+And replace SOME_TEXT with your answer
 """
 
 
@@ -50,7 +61,8 @@ def test_function_call():
     request = request.replace('%question%', 'What are the best Grateful Dead shows?')
 
     llm = Ollama('mistral:7b-instruct-v0.2-q8_0')
-    response = llm.message_with_history(request)
+    history = [llm.message_with_history(request)]
+    response = llm.message_with_history(best_shows, history)
     print(response.get_text_response())
 
 
