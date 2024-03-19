@@ -55,3 +55,10 @@ class Ollama(BaseLLM):
         except ollama.ResponseError as ex:
             logger.error(f'Ollama error: {ex}')
         return SingleQuery(request, SingleChat.get_error(was_response=True))
+
+    def message_with_tools(self, text, tools, show_history=False) -> SingleQuery:
+        # we do the following:
+        # set the format option to json, to force a json response
+        # set the system message to show tool usage
+        # context, if there is history
+        pass
