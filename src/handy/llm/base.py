@@ -37,11 +37,11 @@ class BaseLLM:
 
     def message(self, text: str) -> SingleChat:
         # pass a single message and get a single answer
-        return ''
+        return SingleChat.get_error()
 
     def message_with_history(self, text: str) -> SingleChat:
         # pass a single message with chat history
-        return ''
+        return SingleChat.get_error()
 
     def clear_history(self):
         # delete the entire history

@@ -8,8 +8,6 @@ import tempfile
 from pathlib import Path
 from docker.errors import ImageNotFound, BuildError, APIError, ContainerError
 
-from simple_tool import Tool
-
 
 """
 A tool is again, something that consumes text and returns text.
@@ -85,6 +83,10 @@ class PythonResult:
         # strip ending \n if it exists
         self.output = result.rstrip()
 
+    @property
+    def has_error(self):
+        return self.error_code != 0
+
 
 class DockerRunner:
     def __init__(self, version=DEFAULT_PYTHON_VERSION):
@@ -130,16 +132,3 @@ class DockerRunner:
 
 # the runner should likely not try to pull in the docker image, at least not by default
 runner = DockerRunner()
-
-
-# a tool will need to communicate via json. So we need to define the json structure somehow
-class PythonRunner(Tool):
-    def __init__(self):
-        super().__init__()
-        self.description = 'Tool to run Python code'
-        self.function = self.run_python_code
-        self.input_format = '{"code":"The python code to run"}'
-        self.output_format = '{"output":"The terminal output of the code"}'
-
-    def run_python_code(self, python_code) -> str:
-        runner.run_python(python_code)

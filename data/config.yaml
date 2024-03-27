@@ -1,0 +1,6 @@
+font:
+  name: inconsolata
+  size: 14
+
+install:
+  install: 'install_directory'

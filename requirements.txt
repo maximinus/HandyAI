@@ -15,3 +15,6 @@ urllib3==2.2.1
 lancedb~=0.6.2
 pygame~=2.5.2
 PyAudio~=0.2.14
+PyYAML~=6.0.1
+PyQt5~=5.15.10
+tqdm~=4.66.2
