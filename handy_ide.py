@@ -1,10 +1,10 @@
 import sys
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QSplitter, QTabWidget, QTabBar, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QSplitter, QTabWidget, QAction
 from PyQt5.QtCore import Qt
 
-from ide.settings import settings, get_all_actions, get_menu_setup, get_toolbar_setup
-from ide.text_editor import PythonEditor
+from ide.settings import settings, get_all_actions, get_menu_setup, get_toolbar_setup, SettingsWindow
+from ide.text_editor import PythonEditor, TextEditorContainer
 from ide.file_tree import FileTreeView
 from ide.python_tree import PythonTree
 from ide.llm_chat import LlmChat
@@ -47,9 +47,10 @@ class TextEditor(QMainWindow):
         top_splitter.addWidget(tree_widget)
 
         # text editor tabs
-        self.text_editors = QTabWidget()
+        self.text_editors = TextEditorContainer()
+        #self.text_editors = QTabWidget()
         top_splitter.addWidget(self.text_editors)
-        self.add_new_editor(PythonEditor())
+        #self.add_new_editor(PythonEditor())
 
         self.setWindowTitle('Handy IDE')
         # first 2 values are x,y position in screen
@@ -59,24 +60,8 @@ class TextEditor(QMainWindow):
         main_widget.setSizes([400, 200])
         top_splitter.setSizes([200, 600])
 
-    def add_new_editor(self, editor):
-        index = self.text_editors.addTab(editor, editor.tab_name)
-        # we need to add something to the close button
-        close_button = editor.get_tab_widget()
-        close_button.clicked.connect(lambda: self.close_editor(editor))
-        self.text_editors.tabBar().setTabButton(index, QTabBar.ButtonPosition.RightSide, close_button)
-
-    def close_editor(self, editor):
-        # remove the tab, but let it handle itself first
-        index = self.text_editors.indexOf(editor)
-        if index >= 0:
-            # editor was found
-            editor.close()
-            self.text_editors.removeTab(index)
-
     def create_menu_and_toolbar(self):
         actions = get_all_actions(self)
-
         menu_bar = self.menuBar()
         for menu_name, entries in get_menu_setup(settings.gui_data).items():
             menu = menu_bar.addMenu(menu_name)
@@ -85,10 +70,19 @@ class TextEditor(QMainWindow):
                     menu.addSeparator()
                 else:
                     menu.addAction(actions[menu_entry])
+            if menu_name == 'File':
+                options = QAction('Settings', self)
+                options.triggered.connect(self.show_options)
+                menu.addAction(options)
 
         toolbar = self.addToolBar('Toolbar')
         for tool_action in get_toolbar_setup():
             toolbar.addAction(actions[tool_action])
+
+    def show_options(self):
+        settings = SettingsWindow(self)
+        settings.setModal(True)
+        settings.exec_()
 
 
 if __name__ == '__main__':

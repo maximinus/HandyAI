@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QTextEdit, QPushButton, QMessageBox, QFileDialog
+from PyQt5.QtWidgets import QTextEdit, QPushButton, QMessageBox, QFileDialog, QTabBar, QTabWidget
 from PyQt5.QtGui import QColor, QTextCharFormat, QSyntaxHighlighter
 from PyQt5.QtCore import QSize, QRegularExpression
 
@@ -108,3 +108,43 @@ class PythonEditor(QTextEdit):
                 text = self.toPlainText()
                 file.write(text)
         self.saved = True
+
+
+class TextEditorContainer(QTabWidget):
+    def __init__(self):
+        super().__init__()
+        # start with an empty editor
+        self.add_new_editor(PythonEditor())
+
+    def add_new_editor(self, editor):
+        index = self.addTab(editor, editor.tab_name)
+        # we need to add something to the close button
+        close_button = editor.get_tab_widget()
+        close_button.clicked.connect(lambda: self.close_editor(editor))
+        self.tabBar().setTabButton(index, QTabBar.ButtonPosition.RightSide, close_button)
+
+    def close_editor(self, editor):
+        # remove the tab, but let it handle itself first
+        index = self.indexOf(editor)
+        if index >= 0:
+            # editor was found
+            editor.close()
+            self.removeTab(index)
+
+    # define the base text actions
+    def cut_text(self):
+        current_tab = self.currentWidget()
+        current_tab.cut()
+
+    def paste_text(self, text):
+        current_tab = self.currentWidget()
+        current_tab.paste(text)
+
+    def copy_text(self):
+        current_tab = self.currentWidget()
+        current_tab.copy()
+
+    def delete_text(self):
+        current_tab = self.currentWidget()
+        cursor = current_tab.textCursor()
+        cursor.removeSelectedText()
