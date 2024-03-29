@@ -1,6 +1,6 @@
-from handy.llm.ollama_llm import Ollama
-from handy.agents.simple_agent import Agent
-from handy.tasks.simple_task import Task
+from handy_ide.llm.ollama_llm import Ollama
+from handy_ide.agents.simple_agent import Agent
+from handy_ide.tasks.simple_task import Task
 
 
 # first we need an llm

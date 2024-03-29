@@ -1,0 +1,11 @@
+Short Term Goals
+----------------
+
+* Add a chat instance to the bottom row of tabs
+* Ensure that open / close / save files on the text tabs works
+* Make sure font settings are used in the text editor and consoles
+* Look into highlighting th Python code text
+* Make the opening screen a "Choose project" screen
+* Make sure the "cut / paste / delete" options work
+* Clean up the Python object inspector so it works, and shows icons
+* Confirm on exit

@@ -1,4 +1,4 @@
-from handy.llm.base import BaseLLM
+from handy_ide.llm.base import BaseLLM
 
 # An agent is an llm wrapped up with some extra data
 # They act like all transformers: they input text and then and output text.

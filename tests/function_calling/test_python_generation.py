@@ -1,7 +1,7 @@
 import ast
 import ollama
 
-from handy.tools.run_python import runner
+from handy_ide.tools.run_python import runner
 
 # the aim here is to have an llm provide Python code
 # We do this in the following way

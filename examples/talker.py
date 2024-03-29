@@ -11,7 +11,7 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import scrolledtext, font
 
-from handy.llm.ollama_llm import Ollama
+from handy_ide.llm.ollama_llm import Ollama
 
 
 TMP_FOLDER = Path(__file__).parent / 'tmp'

@@ -1,6 +1,6 @@
 import unittest
 
-from handy.tools.simple_tool import Tool
+from handy_ide.tools.simple_tool import Tool
 
 # example functions
 def no_args():

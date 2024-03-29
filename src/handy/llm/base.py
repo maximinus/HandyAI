@@ -26,9 +26,16 @@ class SingleQuery:
     def __init__(self, request: SingleChat, response: SingleChat):
         self.request = request
         self.response = response
+        self.error = False
 
     def get_text_response(self) -> str:
         return self.response.text
+
+    @classmethod
+    def get_error(cls, request, error_text):
+        query = SingleQuery(request, error_text)
+        query.error = True
+        return query
 
 
 class BaseLLM:

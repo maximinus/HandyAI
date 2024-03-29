@@ -6,6 +6,17 @@ from PyQt5.QtCore import Qt
 
 from ide.settings import settings, get_all_actions, get_menu_setup, get_toolbar_setup
 from ide.text_editor import PythonEditor
+from ide.file_tree import FileTreeView
+from ide.console import Console
+from ide.llm_chat import LlmChat
+from ide.python_tree import PythonTree
+
+
+DEFAULT_WINDOW_SIZE = [1024, 768]
+# this is based on the height
+MAIN_WIDGET_RATIO = [568, 200]
+# and then the width
+SUB_WIDGET_RATIO = [300, 724]
 
 
 class TextEditor(QMainWindow):
@@ -13,22 +24,28 @@ class TextEditor(QMainWindow):
         super().__init__()
         self.create_menu_and_toolbar()
 
-        main_split = QSplitter(Qt.Vertical)
-        self.setCentralWidget(main_split)
+        main_widget = QSplitter(Qt.Vertical)
+        self.setCentralWidget(main_widget)
         top_splitter = QSplitter(Qt.Horizontal)
-        main_split.addWidget(top_splitter)
+        main_widget.addWidget(top_splitter)
 
-        # bottom; text with tabs
-        bottom_widget = QTabWidget()
-        main_split.addWidget(bottom_widget)
-        bottom_widget.addTab(QTextEdit(), 'Tab 1')
-        bottom_widget.addTab(QTextEdit(), 'Tab 2')
+        # bottom; consoles with tab
+        tools_widget = QTabWidget()
+        main_widget.addWidget(tools_widget)
+        llm = LlmChat()
+        console = Console()
+        tools_widget.addTab(llm, 'LLM Chat')
+        tools_widget.addTab(console, 'Console')
+        self.tools = [llm, console]
 
         # left tree view
-        left_widget = QTabWidget()
-        top_splitter.addWidget(left_widget)
-        tree_view = QTreeView()
-        left_widget.addTab(tree_view, 'Python')
+        tree_widget = QTabWidget()
+        self.file_tree = FileTreeView(settings.install_dir)
+        tree_widget.addTab(self.file_tree, 'Local Files')
+        self.python_tree = PythonTree()
+        self.python_tree.parse_python_code()
+        tree_widget.addTab(self.python_tree, 'Python')
+        top_splitter.addWidget(tree_widget)
 
         # text editor tabs
         right_top = QTabWidget()
@@ -39,10 +56,11 @@ class TextEditor(QMainWindow):
             right_top.tabBar().setTabButton(index, QTabBar.ButtonPosition.RightSide, editor.get_tab_widget())
 
         self.setWindowTitle('Handy IDE')
-        self.setGeometry(300, 100, 800, 600)
+        # first 2 values are x,y position in screen
+        self.setGeometry(300, 100, DEFAULT_WINDOW_SIZE[0], DEFAULT_WINDOW_SIZE[1])
 
         # set ratios
-        main_split.setSizes([400, 200])
+        main_widget.setSizes([400, 200])
         top_splitter.setSizes([200, 600])
 
     def create_menu_and_toolbar(self):
@@ -60,7 +78,6 @@ class TextEditor(QMainWindow):
         toolbar = self.addToolBar('Toolbar')
         for tool_action in get_toolbar_setup():
             toolbar.addAction(actions[tool_action])
-
 
     def open_file(self):
         filename, _ = QFileDialog.getOpenFileName(self, 'Open File', '', 'Text Files (*.txt)')
