@@ -1,8 +1,8 @@
-from PyQt5.QtWidgets import QTextEdit, QPushButton
-from PyQt5.QtGui import QColor, QTextCharFormat, QFont, QSyntaxHighlighter
+from PyQt5.QtWidgets import QTextEdit, QPushButton, QMessageBox, QFileDialog
+from PyQt5.QtGui import QColor, QTextCharFormat, QSyntaxHighlighter
 from PyQt5.QtCore import QSize, QRegularExpression
 
-from ide.settings import get_icon, get_pixmap
+from ide.settings import get_icon
 
 
 def get_close_button():
@@ -50,16 +50,31 @@ class PythonSyntax(QSyntaxHighlighter):
         self.setCurrentBlockState(0)
 
 
+def load_file(filepath):
+    with open(filepath, 'r') as f:
+        return f.read()
+
+
 class PythonEditor(QTextEdit):
     """
     A text editor which also handles the widget displayed in the tab, as well as displaying Python text
     """
     def __init__(self, filepath=None):
         super().__init__()
+        # filepath exists at this point
         self.filepath = filepath
-        # must be saved when we first open the file
-        self.saved = True
+        self.saved = False
+        if filepath is not None:
+            # load the text and display it
+            text = load_file()
+            self.setText(text)
+            self.saved = True
         self.highlighter = PythonSyntax(self.document())
+        self.textChanged.connect(self.changed)
+
+    def changed(self):
+        # text has been modified, so this version has not been changed
+        self.saved = False
 
     @property
     def tab_name(self):
@@ -70,3 +85,26 @@ class PythonEditor(QTextEdit):
 
     def get_tab_widget(self):
         return get_close_button()
+
+    def close(self):
+        # called just before the resource is destroyed
+        # if we have been saved, no need to do anything
+        if self.saved is True:
+            return
+        reply = QMessageBox.question(self, 'Save?', 'Save file before closing?',
+                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            self.save_file()
+
+    def save_file(self):
+        extension = 'All files (*.*)'
+        if self.filepath is not None:
+            extension = f'*{self.filepath.suffix}'
+
+        # we need to save with some kind of name
+        filename, _ = QFileDialog.getSaveFileName(self, 'Save File', '', 'All files (*.*)')
+        if filename:
+            with open(filename, 'w') as file:
+                text = self.toPlainText()
+                file.write(text)
+        self.saved = True

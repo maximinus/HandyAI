@@ -1,7 +1,6 @@
 import sys
 
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QTextEdit, QTreeView,
-                             QSplitter, QTabWidget, QTabBar, QFileDialog)
+from PyQt5.QtWidgets import QApplication, QMainWindow, QSplitter, QTabWidget, QTabBar, QFileDialog
 from PyQt5.QtCore import Qt
 
 from ide.settings import settings, get_all_actions, get_menu_setup, get_toolbar_setup
@@ -48,12 +47,9 @@ class TextEditor(QMainWindow):
         top_splitter.addWidget(tree_widget)
 
         # text editor tabs
-        right_top = QTabWidget()
-        top_splitter.addWidget(right_top)
-        self.editors = [PythonEditor()]
-        for index, editor in enumerate(self.editors):
-            right_top.addTab(editor, editor.tab_name)
-            right_top.tabBar().setTabButton(index, QTabBar.ButtonPosition.RightSide, editor.get_tab_widget())
+        self.text_editors = QTabWidget()
+        top_splitter.addWidget(self.text_editors)
+        self.add_new_editor(PythonEditor())
 
         self.setWindowTitle('Handy IDE')
         # first 2 values are x,y position in screen
@@ -62,6 +58,21 @@ class TextEditor(QMainWindow):
         # set ratios
         main_widget.setSizes([400, 200])
         top_splitter.setSizes([200, 600])
+
+    def add_new_editor(self, editor):
+        index = self.text_editors.addTab(editor, editor.tab_name)
+        # we need to add something to the close button
+        close_button = editor.get_tab_widget()
+        close_button.clicked.connect(lambda: self.close_editor(editor))
+        self.text_editors.tabBar().setTabButton(index, QTabBar.ButtonPosition.RightSide, close_button)
+
+    def close_editor(self, editor):
+        # remove the tab, but let it handle itself first
+        index = self.text_editors.indexOf(editor)
+        if index >= 0:
+            # editor was found
+            editor.close()
+            self.text_editors.removeTab(index)
 
     def create_menu_and_toolbar(self):
         actions = get_all_actions(self)
@@ -78,19 +89,6 @@ class TextEditor(QMainWindow):
         toolbar = self.addToolBar('Toolbar')
         for tool_action in get_toolbar_setup():
             toolbar.addAction(actions[tool_action])
-
-    def open_file(self):
-        filename, _ = QFileDialog.getOpenFileName(self, 'Open File', '', 'Text Files (*.txt)')
-        if filename:
-            with open(filename, 'r') as file:
-                self.textEdit.setText(file.read())
-
-    def save_file(self):
-        filename, _ = QFileDialog.getSaveFileName(self, 'Save File', '', 'Text Files (*.txt)')
-        if filename:
-            with open(filename, 'w') as file:
-                text = self.textEdit.toPlainText()
-                file.write(text)
 
 
 if __name__ == '__main__':

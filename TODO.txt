@@ -10,4 +10,5 @@ Short Term Goals
 * Confirm on exit
 
 Done:
-* Add a chat instance to the bottom row of tabs
+* Added a chat instance to the bottom row of tabs
+* Added a Python REPL in the bottom row of tabs
