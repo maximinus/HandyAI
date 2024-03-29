@@ -28,7 +28,6 @@ class UpdateThread(QObject):
             time.sleep(0.05)
 
 
-# it's a lot simpler to have a text entry box and a console above
 class LlmChat(QWidget):
     def __init__(self):
         super().__init__()
@@ -37,6 +36,7 @@ class LlmChat(QWidget):
         self.chat_history = []
         self.input_locked = False
         self.display = QTextEdit()
+        self.display.setReadOnly(True)
         self.user_entry = QLineEdit()
         layout.addWidget(self.display)
         layout.addWidget(self.user_entry)

@@ -7,9 +7,9 @@ from PyQt5.QtCore import Qt
 from ide.settings import settings, get_all_actions, get_menu_setup, get_toolbar_setup
 from ide.text_editor import PythonEditor
 from ide.file_tree import FileTreeView
-from ide.console import Console
-from ide.llm_chat import LlmChat
 from ide.python_tree import PythonTree
+from ide.llm_chat import LlmChat
+from ide.python_repl import PythonREPL
 
 
 DEFAULT_WINDOW_SIZE = [1024, 768]
@@ -33,10 +33,10 @@ class TextEditor(QMainWindow):
         tools_widget = QTabWidget()
         main_widget.addWidget(tools_widget)
         llm = LlmChat()
-        console = Console()
+        repl = PythonREPL()
         tools_widget.addTab(llm, 'LLM Chat')
-        tools_widget.addTab(console, 'Console')
-        self.tools = [llm, console]
+        tools_widget.addTab(repl, 'Console')
+        self.tools = [llm, repl]
 
         # left tree view
         tree_widget = QTabWidget()
