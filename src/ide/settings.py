@@ -16,26 +16,6 @@ def get_yaml_data(yaml_file):
     return yaml_data
 
 
-class Settings:
-    def __init__(self):
-        self.config = get_yaml_data(CONFIG_SETTINGS)
-        self.install_dir = Path(self.config['install']['directory'])
-        if not os.path.exists(self.install_dir):
-            raise EnvironmentError(f'Install directory {self.install_dir} not found')
-        self.editor_font = QFont(self.config['font']['name'], self.config['font']['size'])
-
-
-settings = Settings()
-
-
-def get_icon(icon_name):
-    return QIcon(str(settings.install_dir / 'media' / 'icons' / f'{icon_name}.svg'))
-
-
-def get_pixmap(pixmap_name):
-    return QPixmap(str(settings.install_dir / 'media' / 'icons' / f'{pixmap_name}.png'))
-
-
 class SettingsWindow(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent, Qt.WindowTitleHint | Qt.WindowSystemMenuHint)
@@ -65,7 +45,26 @@ class SettingsWindow(QDialog):
         self.setGeometry(300, 300, 300, 200)
 
 
-def show_settings(root_window):
-    dialog = SettingsWindow(root_window)
-    dialog.setModal(True)
-    dialog.exec_()
+class Settings:
+    def __init__(self):
+        self.config = get_yaml_data(CONFIG_SETTINGS)
+        self.install_dir = Path(self.config['install']['directory'])
+        if not os.path.exists(self.install_dir):
+            raise EnvironmentError(f'Install directory {self.install_dir} not found')
+        self.editor_font = QFont(self.config['font']['name'], self.config['font']['size'])
+
+    def show_settings(self, root_window):
+        dialog = SettingsWindow()
+        dialog.setModal(True)
+        dialog.exec_()
+
+
+settings = Settings()
+
+
+def get_icon(icon_name):
+    return QIcon(str(settings.install_dir / 'media' / 'icons' / f'{icon_name}.svg'))
+
+
+def get_pixmap(pixmap_name):
+    return QPixmap(str(settings.install_dir / 'media' / 'gfx' / f'{pixmap_name}.png'))

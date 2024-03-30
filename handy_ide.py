@@ -10,6 +10,7 @@ from ide.python_tree import PythonTree
 from ide.llm_chat import LlmChat
 from ide.python_repl import PythonREPL
 from ide.searchbox import add_search
+from ide.helpers import show_about_screen
 
 
 DEFAULT_WINDOW_SIZE = [1024, 768]
@@ -74,14 +75,14 @@ class HandyIDE(QMainWindow):
     def create_menu_and_toolbar(self):
         actions = {'open': get_action('open', 'Open', self, self.text_editors.open_file),
                    'new-file': get_action('new-file', 'New', self, self.text_editors.new_file),
-                   'settings': get_action('settings', 'Settings', self, self.not_implemented),
+                   'settings': get_action('settings', 'Settings', self, settings.show_settings),
                    'exit-handy': get_action('exit', 'Exit', self, self.not_implemented),
                    'cut-text': get_action('cut', 'Cut', self, self.text_editors.cut_text),
                    'copy-text': get_action('copy', 'Copy', self, self.text_editors.copy_text),
                    'paste-text': get_action('copy-paste', 'Paste', self, self.text_editors.paste_text),
                    'delete-text': get_action('delete', 'Delete', self, self.text_editors.delete_text),
                    'help-handy': get_action('help', 'Help', self, self.not_implemented),
-                   'about-handy': get_action('info', 'About', self, self.not_implemented)}
+                   'about-handy': get_action('info', 'About', self, show_about_screen)}
 
         menu_bar = self.menuBar()
         menu = menu_bar.addMenu('File')
