@@ -2,12 +2,11 @@ import os
 import yaml
 from pathlib import Path
 
-from PyQt5.QtWidgets import QAction, QDialog, QPushButton, QCheckBox, QComboBox, QVBoxLayout
+from PyQt5.QtWidgets import QDialog, QPushButton, QCheckBox, QComboBox, QVBoxLayout
 from PyQt5.QtGui import QPixmap, QIcon, QFont
 from PyQt5.QtCore import Qt
 
 SETTINGS_FOLDER = Path.home() / '.handy'
-GUI_SETTINGS = SETTINGS_FOLDER / 'gui.yaml'
 CONFIG_SETTINGS = SETTINGS_FOLDER / 'config.yaml'
 
 
@@ -23,7 +22,6 @@ class Settings:
         self.install_dir = Path(self.config['install']['directory'])
         if not os.path.exists(self.install_dir):
             raise EnvironmentError(f'Install directory {self.install_dir} not found')
-        self.gui_data = get_yaml_data(GUI_SETTINGS)
         self.editor_font = QFont(self.config['font']['name'], self.config['font']['size'])
 
 
@@ -36,31 +34,6 @@ def get_icon(icon_name):
 
 def get_pixmap(pixmap_name):
     return QPixmap(str(settings.install_dir / 'media' / 'icons' / f'{pixmap_name}.png'))
-
-
-def get_all_actions(window, config_data=settings.gui_data):
-    actions = config_data['Actions']
-    qt_actions = {}
-    for action in actions:
-        # example: {'name': 'Open', 'icon': 'open', 'action': 'open-new-file'}
-        name = action['name']
-        if 'icon' in action:
-            icon = get_icon(action['icon'])
-            new_action = QAction(icon, name, window)
-        else:
-            new_action = QAction(name, window)
-        if 'key' in action:
-            new_action.setShortcut(action['key'])
-        qt_actions[name] = new_action
-    return qt_actions
-
-
-def get_menu_setup(config_data=settings.gui_data):
-    return config_data['Menus']
-
-
-def get_toolbar_setup(config_data=settings.gui_data):
-    return config_data['Toolbar']
 
 
 class SettingsWindow(QDialog):
@@ -92,8 +65,7 @@ class SettingsWindow(QDialog):
         self.setGeometry(300, 300, 300, 200)
 
 
-if __name__ == '__main__':
-    #gui_actions = get_all_actions(settings.gui_data, None)
-    #print(gui_actions)
-    menus = get_menu_setup(settings.gui_data)
-    print(menus)
+def show_settings(root_window):
+    dialog = SettingsWindow(root_window)
+    dialog.setModal(True)
+    dialog.exec_()

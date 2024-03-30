@@ -107,3 +107,8 @@ class Ollama(BaseLLM):
         # set the system message to show tool usage
         # context, if there is history
         pass
+
+
+def get_base_models():
+    models = ollama.list()
+    return [x['name'] for x in models['models']]

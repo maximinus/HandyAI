@@ -2,7 +2,10 @@ from PyQt5.QtWidgets import QTextEdit, QPushButton, QMessageBox, QFileDialog, QT
 from PyQt5.QtGui import QColor, QTextCharFormat, QSyntaxHighlighter, QKeyEvent, QTextCursor
 from PyQt5.QtCore import Qt, QSize, QRegularExpression
 
+from pathlib import Path
+
 from ide.settings import get_icon, settings
+from ide.helpers import open_existing_file
 
 
 def get_close_button():
@@ -55,10 +58,7 @@ def load_file(filepath):
         return f.read()
 
 
-class PythonEditor(QTextEdit):
-    """
-    A text editor which also handles the widget displayed in the tab, as well as displaying Python text
-    """
+class BaseEditor(QTextEdit):
     def __init__(self, filepath=None):
         super().__init__()
         # filepath exists at this point
@@ -66,22 +66,14 @@ class PythonEditor(QTextEdit):
         self.saved = False
         if filepath is not None:
             # load the text and display it
-            text = load_file()
+            text = load_file(filepath)
             self.setText(text)
             self.saved = True
-        self.highlighter = PythonSyntax(self.document())
         self.setCurrentFont(settings.editor_font)
         self.textChanged.connect(self.changed)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
-        if event.key() == Qt.Key_Tab:
-            cursor = self.textCursor()
-            current_pos = cursor.positionInBlock()
-            spaces_to_add = 4 - (current_pos % 4)
-            self.insertPlainText(' ' * spaces_to_add)
-        elif event.key() == Qt.Key_Left or event.key() == Qt.Key_Right:
-            self.move_cursor_to_tab(event)
-        elif event.key() == Qt.Key_Delete:
+        if event.key() == Qt.Key_Delete:
             cursor = self.textCursor()
             if cursor.hasSelection():
                 cursor.removeSelectedText()
@@ -94,33 +86,6 @@ class PythonEditor(QTextEdit):
                 self.cut()
         else:
             QTextEdit.keyPressEvent(self, event)
-
-    def move_cursor_to_tab(self, event):
-        cursor = self.textCursor()
-        current_pos = cursor.positionInBlock()
-        line_text = cursor.block().text()
-
-        shift_pressed = event.modifiers() & Qt.ShiftModifier
-
-        if event.key() == Qt.Key_Left:
-            new_pos = (current_pos - 1) // 4 * 4
-            if current_pos > 0 and line_text[current_pos:new_pos:-1].strip() == '':
-                move_type = QTextCursor.KeepAnchor if shift_pressed else QTextCursor.MoveAnchor
-                cursor.movePosition(QTextCursor.Left, move_type, n=(current_pos - new_pos))
-            else:
-                move_type = QTextCursor.KeepAnchor if shift_pressed else QTextCursor.MoveAnchor
-                cursor.movePosition(QTextCursor.Left, move_type)
-
-        elif event.key() == Qt.Key_Right:
-            new_pos = ((current_pos + 4) // 4) * 4
-            if new_pos < len(line_text) and line_text[current_pos:new_pos].strip() == '':
-                move_type = QTextCursor.KeepAnchor if shift_pressed else QTextCursor.MoveAnchor
-                cursor.movePosition(QTextCursor.Right, move_type, n=(new_pos - current_pos))
-            else:
-                move_type = QTextCursor.KeepAnchor if shift_pressed else QTextCursor.MoveAnchor
-                cursor.movePosition(QTextCursor.Right, move_type)
-
-        self.setTextCursor(cursor)
 
     def changed(self):
         # text has been modified, so this version has not been changed
@@ -160,6 +125,53 @@ class PythonEditor(QTextEdit):
         self.saved = True
 
 
+class PythonEditor(BaseEditor):
+    """
+    A text editor which also handles the widget displayed in the tab, as well as displaying Python text
+    """
+    def __init__(self, filepath=None):
+        super().__init__()
+        self.highlighter = PythonSyntax(self.document())
+
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        if event.key() == Qt.Key_Tab:
+            cursor = self.textCursor()
+            current_pos = cursor.positionInBlock()
+            spaces_to_add = 4 - (current_pos % 4)
+            self.insertPlainText(' ' * spaces_to_add)
+        elif event.key() == Qt.Key_Left or event.key() == Qt.Key_Right:
+            self.move_cursor_to_tab(event)
+        else:
+            BaseEditor.keyPressEvent(self, event)
+
+    def move_cursor_to_tab(self, event):
+        cursor = self.textCursor()
+        current_pos = cursor.positionInBlock()
+        line_text = cursor.block().text()
+
+        shift_pressed = event.modifiers() & Qt.ShiftModifier
+
+        if event.key() == Qt.Key_Left:
+            new_pos = (current_pos - 1) // 4 * 4
+            if current_pos > 0 and line_text[current_pos:new_pos:-1].strip() == '':
+                move_type = QTextCursor.KeepAnchor if shift_pressed else QTextCursor.MoveAnchor
+                cursor.movePosition(QTextCursor.Left, move_type, n=(current_pos - new_pos))
+            else:
+                move_type = QTextCursor.KeepAnchor if shift_pressed else QTextCursor.MoveAnchor
+                cursor.movePosition(QTextCursor.Left, move_type)
+
+        elif event.key() == Qt.Key_Right:
+            new_pos = ((current_pos + 4) // 4) * 4
+            if new_pos < len(line_text) and line_text[current_pos:new_pos].strip() == '':
+                move_type = QTextCursor.KeepAnchor if shift_pressed else QTextCursor.MoveAnchor
+                cursor.movePosition(QTextCursor.Right, move_type, n=(new_pos - current_pos))
+            else:
+                move_type = QTextCursor.KeepAnchor if shift_pressed else QTextCursor.MoveAnchor
+                cursor.movePosition(QTextCursor.Right, move_type)
+
+        self.setTextCursor(cursor)
+
+
 class TextEditorContainer(QTabWidget):
     def __init__(self):
         super().__init__()
@@ -172,6 +184,8 @@ class TextEditorContainer(QTabWidget):
         close_button = editor.get_tab_widget()
         close_button.clicked.connect(lambda: self.close_editor(editor))
         self.tabBar().setTabButton(index, QTabBar.ButtonPosition.RightSide, close_button)
+        # move to this index
+        self.setCurrentIndex(index)
 
     def close_editor(self, editor):
         # remove the tab, but let it handle itself first
@@ -199,3 +213,16 @@ class TextEditorContainer(QTabWidget):
         cursor = current_tab.textCursor()
         if cursor.hasSelection():
             cursor.removeSelectedText()
+
+    def new_file(self):
+        self.add_new_editor(PythonEditor())
+
+    def open_file(self):
+        filepath = open_existing_file(self)
+        if len(filepath) == 0:
+            return
+        filepath = Path(filepath)
+        if filepath.suffix.lower() == '.py':
+            self.add_new_editor(PythonEditor(filepath))
+        else:
+            self.add_new_editor(BaseEditor(filepath))
