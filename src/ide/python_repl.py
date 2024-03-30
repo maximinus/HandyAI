@@ -5,6 +5,8 @@ from PyQt5.QtWidgets import QTextEdit, QVBoxLayout, QLineEdit, QWidget
 from PyQt5.QtCore import pyqtSignal, QObject
 from PyQt5 import QtGui
 
+from ide.settings import settings
+
 OUTPUT_COLOR = QtGui.QColor(0, 0, 128)
 
 
@@ -29,8 +31,10 @@ class PythonREPL(QWidget):
         self.environment = {}
         layout = QVBoxLayout(self)
         self.output = QTextEdit()
+        self.output.setCurrentFont(settings.editor_font)
         self.output.setReadOnly(True)
         self.input = QLineEdit()
+        self.input.setFont(settings.editor_font)
         self.input.returnPressed.connect(self.run_code)
         layout.addWidget(self.output)
         layout.addWidget(self.input)

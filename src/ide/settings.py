@@ -3,7 +3,7 @@ import yaml
 from pathlib import Path
 
 from PyQt5.QtWidgets import QAction, QDialog, QPushButton, QCheckBox, QComboBox, QVBoxLayout
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtGui import QPixmap, QIcon, QFont
 from PyQt5.QtCore import Qt
 
 SETTINGS_FOLDER = Path.home() / '.handy'
@@ -19,11 +19,12 @@ def get_yaml_data(yaml_file):
 
 class Settings:
     def __init__(self):
-        data = get_yaml_data(CONFIG_SETTINGS)
-        self.install_dir = Path(data['install']['directory'])
+        self.config = get_yaml_data(CONFIG_SETTINGS)
+        self.install_dir = Path(self.config['install']['directory'])
         if not os.path.exists(self.install_dir):
             raise EnvironmentError(f'Install directory {self.install_dir} not found')
         self.gui_data = get_yaml_data(GUI_SETTINGS)
+        self.editor_font = QFont(self.config['font']['name'], self.config['font']['size'])
 
 
 settings = Settings()

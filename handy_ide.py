@@ -9,6 +9,7 @@ from ide.file_tree import FileTreeView
 from ide.python_tree import PythonTree
 from ide.llm_chat import LlmChat
 from ide.python_repl import PythonREPL
+from ide.searchbox import add_search
 
 
 DEFAULT_WINDOW_SIZE = [1024, 768]
@@ -48,9 +49,7 @@ class TextEditor(QMainWindow):
 
         # text editor tabs
         self.text_editors = TextEditorContainer()
-        #self.text_editors = QTabWidget()
         top_splitter.addWidget(self.text_editors)
-        #self.add_new_editor(PythonEditor())
 
         self.setWindowTitle('Handy IDE')
         # first 2 values are x,y position in screen
@@ -78,6 +77,7 @@ class TextEditor(QMainWindow):
         toolbar = self.addToolBar('Toolbar')
         for tool_action in get_toolbar_setup():
             toolbar.addAction(actions[tool_action])
+        add_search(toolbar)
 
     def show_options(self):
         settings = SettingsWindow(self)

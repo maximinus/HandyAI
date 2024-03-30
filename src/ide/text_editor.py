@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import QTextEdit, QPushButton, QMessageBox, QFileDialog, QTabBar, QTabWidget
-from PyQt5.QtGui import QColor, QTextCharFormat, QSyntaxHighlighter
-from PyQt5.QtCore import QSize, QRegularExpression
+from PyQt5.QtGui import QColor, QTextCharFormat, QSyntaxHighlighter, QKeyEvent, QTextCursor
+from PyQt5.QtCore import Qt, QSize, QRegularExpression
 
-from ide.settings import get_icon
+from ide.settings import get_icon, settings
 
 
 def get_close_button():
@@ -70,7 +70,57 @@ class PythonEditor(QTextEdit):
             self.setText(text)
             self.saved = True
         self.highlighter = PythonSyntax(self.document())
+        self.setCurrentFont(settings.editor_font)
         self.textChanged.connect(self.changed)
+
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        if event.key() == Qt.Key_Tab:
+            cursor = self.textCursor()
+            current_pos = cursor.positionInBlock()
+            spaces_to_add = 4 - (current_pos % 4)
+            self.insertPlainText(' ' * spaces_to_add)
+        elif event.key() == Qt.Key_Left or event.key() == Qt.Key_Right:
+            self.move_cursor_to_tab(event)
+        elif event.key() == Qt.Key_Delete:
+            cursor = self.textCursor()
+            if cursor.hasSelection():
+                cursor.removeSelectedText()
+        elif event.modifiers() & Qt.ControlModifier:
+            if event.key() == Qt.Key_C:
+                self.copy()
+            elif event.key() == Qt.Key_V:
+                self.paste()
+            elif event.key() == Qt.Key_X:
+                self.cut()
+        else:
+            QTextEdit.keyPressEvent(self, event)
+
+    def move_cursor_to_tab(self, event):
+        cursor = self.textCursor()
+        current_pos = cursor.positionInBlock()
+        line_text = cursor.block().text()
+
+        shift_pressed = event.modifiers() & Qt.ShiftModifier
+
+        if event.key() == Qt.Key_Left:
+            new_pos = (current_pos - 1) // 4 * 4
+            if current_pos > 0 and line_text[current_pos:new_pos:-1].strip() == '':
+                move_type = QTextCursor.KeepAnchor if shift_pressed else QTextCursor.MoveAnchor
+                cursor.movePosition(QTextCursor.Left, move_type, n=(current_pos - new_pos))
+            else:
+                move_type = QTextCursor.KeepAnchor if shift_pressed else QTextCursor.MoveAnchor
+                cursor.movePosition(QTextCursor.Left, move_type)
+
+        elif event.key() == Qt.Key_Right:
+            new_pos = ((current_pos + 4) // 4) * 4
+            if new_pos < len(line_text) and line_text[current_pos:new_pos].strip() == '':
+                move_type = QTextCursor.KeepAnchor if shift_pressed else QTextCursor.MoveAnchor
+                cursor.movePosition(QTextCursor.Right, move_type, n=(new_pos - current_pos))
+            else:
+                move_type = QTextCursor.KeepAnchor if shift_pressed else QTextCursor.MoveAnchor
+                cursor.movePosition(QTextCursor.Right, move_type)
+
+        self.setTextCursor(cursor)
 
     def changed(self):
         # text has been modified, so this version has not been changed
@@ -147,4 +197,5 @@ class TextEditorContainer(QTabWidget):
     def delete_text(self):
         current_tab = self.currentWidget()
         cursor = current_tab.textCursor()
-        cursor.removeSelectedText()
+        if cursor.hasSelection():
+            cursor.removeSelectedText()
