@@ -118,6 +118,6 @@ class HandyIDE(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = HandyIDE()
-    ex.show()
+    ide = HandyIDE()
+    ide.show()
     sys.exit(app.exec_())

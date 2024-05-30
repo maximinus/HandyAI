@@ -31,7 +31,7 @@ class PythonREPL(QWidget):
         self.environment = {}
         layout = QVBoxLayout(self)
         self.output = QTextEdit()
-        self.output.setCurrentFont(settings.editor_font)
+        self.output.setFont(settings.editor_font)
         self.output.setReadOnly(True)
         self.input = QLineEdit()
         self.input.setFont(settings.editor_font)

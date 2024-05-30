@@ -2,6 +2,8 @@ import ollama
 import inspect
 from typing import Callable
 
+# Upade: With mistral 0.3, we can use real function calling; amend
+
 
 # function calling with local llm
 
