@@ -23,18 +23,23 @@ def get_python_version(venv_dir):
         return ''
 
 
-def get_installed_packages(venv_dir):
-    # get the path to the pip executable within the virtual environment
+def get_pip_executable(venv_dir):
     pip_executable = os.path.join(venv_dir, 'bin', 'pip')
     if not os.path.exists(pip_executable):
         pip_executable = os.path.join(venv_dir, 'Scripts', 'pip.exe')
-
     if os.path.exists(pip_executable):
+        return pip_executable
+
+
+def get_installed_packages(venv_dir):
+    # get the path to the pip executable within the virtual environment
+    pip_executable = get_pip_executable(venv_dir)
+    if pip_executable is not None:
         freeze_command = f'"{pip_executable}" freeze --all'
         packages = os.popen(freeze_command).read().strip()
-        return packages
-    else:
-        return "Pip executable not found."
+        return [x.split('==') for x in packages.split()]
+    # Couldn't find anything
+    return []
 
 
 def install_packages(venv_dir, packages):
