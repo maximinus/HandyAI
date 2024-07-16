@@ -6,9 +6,6 @@ LLM_MODEL = 'mistral:latest'
 
 llm = Ollama(LLM_MODEL)
 response = llm.message_streaming('How many polar bears are there?')
-while True:
-    try:
-        chunk = next(response)
-        print(chunk['response'])
-    except StopIteration:
-        break
+
+for chunk in response:
+    print(chunk, end='')

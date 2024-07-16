@@ -31,7 +31,7 @@ A tool should:
 """
 
 DEFAULT_PYTHON_VERSION = '3.11'
-DEFAULT_DOCKER_TAG = 'crew-python-runner'
+DEFAULT_DOCKER_TAG = 'handy-python-runner'
 DOCKER_FOLDER = '/app'
 
 

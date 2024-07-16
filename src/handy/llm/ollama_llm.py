@@ -22,15 +22,14 @@ class ChunkedAnswer:
     def valid(self):
         return self.text_gen is not None
 
-    def next(self):
-        try:
-            next_response = next(self.text_gen)
-            tokens = next_response['message']['content']
-            self.history.append(tokens)
-            return tokens
-        except StopIteration:
-            # we've finished
-            return None
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        next_response = next(self.text_gen)
+        tokens = next_response['response']
+        self.history.append(tokens)
+        return tokens
 
     def get_single_query(self):
         all_tokens = ' '.join(self.history)
