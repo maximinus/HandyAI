@@ -1,7 +1,7 @@
 from datetime import datetime
 
 
-class SingleChat:
+class Message:
     """
     Some text either sent to something (was_response=False), or received (was_response=True)
     """
@@ -19,11 +19,11 @@ class SingleChat:
         return response
 
 
-class SingleQuery:
+class Exchange:
     """
     A request and it's response
     """
-    def __init__(self, request: SingleChat, response: SingleChat):
+    def __init__(self, request: Message, response: Message):
         self.request = request
         self.response = response
         self.error = False
@@ -33,22 +33,28 @@ class SingleQuery:
 
     @classmethod
     def get_error(cls, request, error_text):
-        query = SingleQuery(request, error_text)
+        query = Exchange(request, error_text)
         query.error = True
         return query
+
+    @classmethod
+    def from_text(cls, user_text, response_text):
+        user_chat = Message(text=user_text)
+        response_chat = Message(text=response_text, was_response=True)
+        return cls(user_chat, response_chat)
 
 
 class BaseLLM:
     def __init__(self):
         self.history = []
 
-    def message(self, text: str) -> SingleChat:
+    def message(self, text: str) -> Message:
         # pass a single message and get a single answer
-        return SingleChat.get_error()
+        return Message.get_error()
 
-    def message_with_history(self, text: str) -> SingleChat:
+    def message_with_history(self, text: str) -> Message:
         # pass a single message with chat history
-        return SingleChat.get_error()
+        return Message.get_error()
 
     def clear_history(self):
         # delete the entire history

@@ -21,7 +21,7 @@ class BaseDB:
     def add_text(self, texts: list):
         pass
 
-    def get_top_k(self, k) -> list:
+    def get_nearest_k(self, k) -> list:
         return []
 
 

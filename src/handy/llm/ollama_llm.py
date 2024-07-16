@@ -1,5 +1,5 @@
 import ollama
-from .base import SingleChat, SingleQuery, BaseLLM
+from .base import Message, Exchange, BaseLLM
 
 from datetime import datetime
 
@@ -14,7 +14,7 @@ from datetime import datetime
 class ChunkedAnswer:
     def __init__(self, request, text_gen, model_name):
         self.model_name = model_name
-        self.request = SingleChat(user='user', text=request, timestamp=datetime.now())
+        self.request = Message(user='user', text=request, timestamp=datetime.now())
         self.history = []
         self.text_gen = text_gen
 
@@ -27,17 +27,17 @@ class ChunkedAnswer:
 
     def __next__(self):
         next_response = next(self.text_gen)
-        tokens = next_response['response']
+        tokens = next_response['message']['content']
         self.history.append(tokens)
         return tokens
 
     def get_single_query(self):
         all_tokens = ' '.join(self.history)
-        response = SingleChat(user=self.model_name,
-                              text=all_tokens,
-                              timestamp=datetime.now(),
-                              was_response=True)
-        return SingleQuery(self.request, response)
+        response = Message(user=self.model_name,
+                           text=all_tokens,
+                           timestamp=datetime.now(),
+                           was_response=True)
+        return Exchange(self.request, response)
 
 
 class Ollama(BaseLLM):
@@ -45,17 +45,17 @@ class Ollama(BaseLLM):
         super().__init__()
         self.model_name = model_name
 
-    def message(self, text: str) -> SingleQuery:
-        request = SingleChat(user='user', text=text, timestamp=datetime.now())
+    def message(self, text: str) -> Exchange:
+        request = Message(user='user', text=text, timestamp=datetime.now())
         try:
             result = ollama.generate(model=self.model_name, prompt=text)
-            response = SingleChat(user=self.model_name,
-                                  text=result['response'],
-                                  timestamp=datetime.now(),
-                                  was_response=True)
-            return SingleQuery(request, response)
+            response = Message(user=self.model_name,
+                               text=result['response'],
+                               timestamp=datetime.now(),
+                               was_response=True)
+            return Exchange(request, response)
         except ollama.ResponseError as ex:
-            return SingleQuery.get_error(request, f'Ollama error: {ex}')
+            return Exchange.get_error(request, f'Ollama error: {ex}')
 
     def message_streaming(self, text: str) -> ChunkedAnswer:
         try:
@@ -64,31 +64,31 @@ class Ollama(BaseLLM):
             return ChunkedAnswer(f'Error: {ex}', None, self.model_name)
         return ChunkedAnswer(text, response, self.model_name)
 
-    def get_history_in_ollama_format(self, history: list[SingleQuery]) -> list[dict]:
+    def get_history_in_ollama_format(self, history: list[Exchange]) -> list[dict]:
         messages = []
         for i in history:
             messages.append({'role': i.request.user, 'content': i.request.text})
             messages.append({'role': i.response.user, 'content': i.response.text})
         return messages
 
-    def message_with_history(self, text: str, history: list[SingleQuery] | None = None) -> SingleQuery:
+    def message_with_history(self, text: str, history: list[Exchange] | None = None) -> Exchange:
         all_chats = []
         if history is not None:
             all_chats = self.get_history_in_ollama_format(history)
         # add the current message
         all_chats.append({'role': 'user', 'content': text})
-        request = SingleChat(user='user', text=text, timestamp=datetime.now())
+        request = Message(user='user', text=text, timestamp=datetime.now())
         try:
             result = ollama.chat(model=self.model_name, messages=all_chats)
-            response = SingleChat(user=result['message']['role'],
-                                  text=result['message']['content'],
-                                  timestamp=datetime.now(),
-                                  was_response=True)
-            return SingleQuery(request, response)
+            response = Message(user=result['message']['role'],
+                               text=result['message']['content'],
+                               timestamp=datetime.now(),
+                               was_response=True)
+            return Exchange(request, response)
         except ollama.ResponseError as ex:
-            return SingleQuery.get_error(request, f'Ollama error: {ex}')
+            return Exchange.get_error(request, f'Ollama error: {ex}')
 
-    def message_with_history_streaming(self, text: str, history: list[SingleQuery] | None = None) -> ChunkedAnswer:
+    def message_with_history_streaming(self, text: str, history: list[Exchange] | None = None) -> ChunkedAnswer:
         all_chats = []
         if history is not None:
             all_chats = self.get_history_in_ollama_format(history)
@@ -100,7 +100,7 @@ class Ollama(BaseLLM):
         except ollama.ResponseError as ex:
             return ChunkedAnswer(f'Error: {ex}', None, self.model_name)
 
-    def message_with_tools(self, text, tools, show_history=False) -> SingleQuery:
+    def message_with_tools(self, text, tools, show_history=False) -> Exchange:
         # we do the following:
         # set the format option to json, to force a json response
         # set the system message to show tool usage
