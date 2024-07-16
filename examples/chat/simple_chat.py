@@ -1,6 +1,8 @@
 from handy.llm.ollama_llm import Ollama
 
-llm = Ollama('mistral:7b-instruct-v0.2-q8_0')
+LLM_MODEL = 'mistral:latest'
+
+llm = Ollama(LLM_MODEL)
 history = []
 while True:
     request = input('> ')

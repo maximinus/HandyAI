@@ -3,9 +3,9 @@ from typing import Callable
 # A task is something we would like to do or happen.
 # What we mean by *do* is very important.
 # An llm by default can only ever convert text to text.
-## It's response may be right, or it may be wrong, and the for the interesting cases the latter is usual.
+# It's response may be right, or it may be wrong, and the for the interesting cases the latter is usual.
 # You can use a tool to determine if something is correct, however a tool must be defined in Python.
-# In theory you can let an llm determine if something it correct, however it could always be wrong.
+# In theory you can let an llm determine if something is correct, however it could always be wrong.
 # A task does the usual thing; ultimately it takes in some text, and it returns some text.
 
 # A simple task would just be one agent. It would read in your text and then return some text.
