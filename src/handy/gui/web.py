@@ -1,6 +1,6 @@
 import gradio as gr
 
-from handy.llm.base import BaseLLM
+from handy.llm import BaseLLM
 
 
 def gradio_response(llm_model: BaseLLM):
@@ -21,4 +21,4 @@ def gradio_response(llm_model: BaseLLM):
 
 def web_chat(llm_model):
     llm_function = gradio_response(llm_model)
-    gr.ChatInterface(llm_function).launch()
+    gr.ChatInterface(llm_function, additional_inputs=[]).launch()

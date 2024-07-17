@@ -102,6 +102,13 @@ class ChatDb:
         self.cursor.execute('SELECT 1 FROM chats WHERE name = ?', (name,))
         return self.cursor.fetchone() is not None
 
+    def get_recent_chats(self, total_chats):
+        self.cursor.execute('''
+            SELECT * FROM chats
+            ORDER BY last_update_time DESC
+            LIMIT ?''', (n,))
+        return self.cursor.fetchall()
+
 
 def generate_unique_name():
     name = ''
