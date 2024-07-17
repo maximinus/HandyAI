@@ -27,8 +27,14 @@ def make_tables(cursor):
     ''')
 
 
+def adapt_datetime_iso(val):
+    """Adapt datetime.datetime to timezone-naive ISO 8601 date."""
+    return val.isoformat()
+
+
 class ChatDb:
     def __init__(self):
+        sqlite3.register_adapter(datetime, adapt_datetime_iso)
         full_path = os.path.expanduser(DATABASE_FILE)
         build_tables = not os.path.exists(full_path)
         # Ensure the directory exists
