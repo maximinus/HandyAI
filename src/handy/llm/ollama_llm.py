@@ -51,6 +51,9 @@ class Ollama(BaseLLM):
         except ollama.ResponseError as ex:
             raise LLMError(f'Error: {ex}')
 
+    def get_embedding(self, text):
+        return ollama.embeddings(model=self.model_name, prompt=text)
+
 
 def get_base_models():
     models = ollama.list()

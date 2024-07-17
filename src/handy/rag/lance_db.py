@@ -26,7 +26,7 @@ class BaseDB:
 
 
 class LanceText(LanceModel):
-    # the sourcefield magic means this model handles converting text to vector automatically
+    # SourceField magic means this model handles converting text to vector automatically
     # so when we want to add to the table, we only need give it the string
     vector: Vector(func.ndims()) = func.VectorField()
     text: str = func.SourceField()
@@ -35,9 +35,13 @@ class LanceText(LanceModel):
 class LanceDB(BaseDB):
     def __init__(self):
         super().__init__()
+        full_path = os.path.expanduser(DATABASE_FILE)
+        exists = os.path.exists(full_path)
         self.db = lancedb.connect(DATABASE_FILE)
-        #self.table = self.db.create_table('texts', schema=LanceText)
-        self.table = self.db.open_table('texts')
+        if not exists:
+            self.table = self.db.create_table('texts', schema=LanceText)
+        else:
+            self.table = self.db.open_table('texts')
 
     def add_text(self, texts: list):
         for i in tqdm(texts):

@@ -56,6 +56,9 @@ class BaseLLM:
             if self.store_name is not None:
                 db.add_exchange(self.store_name, self.history[-1][0], self.history[-1][1])
 
+    def get_embedding(self):
+        pass
+
     def __del__(self):
         # maybe the last history was not saved, check here
         self.convert_last()
