@@ -44,14 +44,14 @@ class Ollama(BaseLLM):
         messages = []
         for i in self.history:
             messages.append({'role': 'user', 'content': i[0]})
-            messages.append({'role': 'ai', 'content': i[1]})
+            messages.append({'role': 'assistant', 'content': i[1]})
         return messages
 
     def chat(self, text: str) -> LLMResponse:
         all_chats = self.get_history_in_ollama_format()
         all_chats.append({'role': 'user', 'content': text})
         try:
-            result = OllamaResponse(ollama.chat(model=self.model_name, messages=all_chats))
+            result = OllamaResponse(ollama.chat(model=self.model_name, messages=all_chats, stream=True))
             self.history.append([text, result])
             return result
         except ollama.ResponseError as ex:
