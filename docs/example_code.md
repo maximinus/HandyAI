@@ -39,15 +39,15 @@ We can do this like:
 Now we want to submit a query:
 
     llm.query('How cold is the north pole?')
+    
+This returns a chunked answer (always)
 
-This will return text, also the llm will hold some info about the last interaction.
-
-    llm.query('How cold is the north pole?', chunked=True)
-
-This returns an iterator over the various chunks:
-
-    for chunk in llm.query('How cold is the north pole?', chunked=True):
+    for chunk in llm.query('How cold is the north pole?'):
         print(chunk)
+        
+But you can always just ask for the full response:
+
+    llm.query('How cold is the north pole?').response
 
 
 Perhaps we want to chat, in which case:
@@ -58,7 +58,7 @@ Also returns text, however the next time chat is called, it will pass to the llm
 
 This can be cleared:
 
-    llm.clear_chat()
+    llm.clear_history()
 
 
 When we want to remember
