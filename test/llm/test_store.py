@@ -32,6 +32,6 @@ class TestChatDatabase(unittest.TestCase):
         self.assertEqual(exchanges[1], ('How are you?', 'I am fine, thank you.'))
 
     def test_chat_exists(self):
-        db.create_chat('Chat 1', self.cursor, self.conn)
+        db.create_chat('Chat 1')
         self.assertTrue(db.chat_exists('Chat 1'))
         self.assertFalse(db.chat_exists('Nonexistent Chat'))

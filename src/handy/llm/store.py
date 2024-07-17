@@ -29,8 +29,11 @@ def make_tables(cursor):
 
 class ChatDb:
     def __init__(self):
-        build_tables = not os.path.exists(DATABASE_FILE)
-        self.conn = sqlite3.connect(DATABASE_FILE)
+        full_path = os.path.expanduser(DATABASE_FILE)
+        build_tables = not os.path.exists(full_path)
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+        self.conn = sqlite3.connect(full_path)
         self.cursor = self.conn.cursor()
         if build_tables:
             make_tables(self.cursor)
@@ -46,7 +49,7 @@ class ChatDb:
         start_time = datetime.now()
         last_update_time = start_time
         self.cursor.execute('''
-            INSERT INTO chats (name, start_time, last_update_time)
+            INSERT INTO chats (name, start_time, last_update)
             VALUES (?, ?, ?)
             ''', (name, start_time, last_update_time))
         self.conn.commit()
@@ -69,7 +72,7 @@ class ChatDb:
             VALUES (?, ?, ?, ?)''', (chat_id, user_text, reply_text, start_time))
         self.cursor.execute('''
             UPDATE chats
-            SET last_update_time = ?
+            SET last_update = ?
             WHERE id = ?''', (start_time, chat_id))
         self.conn.commit()
 
