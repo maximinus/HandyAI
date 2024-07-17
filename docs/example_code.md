@@ -59,6 +59,8 @@ Also returns text, however the next time chat is called, it will pass to the llm
 This can be cleared:
 
     llm.clear_history()
+   
+This will also clear the history in the db.
 
 
 When we want to remember
@@ -73,13 +75,15 @@ The function returns the name of the store: either one we specified, or a random
 
 The database will store the text results, and the timestamp of the last interaction.
 
-To restore a chat to a former status, you need to use the name, or just use the last one in the database:
+To restore a chat, you just use the above syntax and the history will also be restored.
 
-    llm.recall(name=None)
+An exception will be raised if the store exists and there is already history.
+If the store does not exist but history does, the history will be added.
 
-Of course, you might just want to continue an old chat and update:
+You can clear the entire store with
 
-    llm.recall_and_use(name=None)
+    llm.clear_history()
+
 
 
 GUI front end
@@ -96,7 +100,7 @@ Will bring up a GUI to enable chat. Of course, you can recall an old chat:
     from handy.llm import Ollama
     from handy.gui import web_chat
 
-    llm.recall_and_use(name)
+    llm.use_store(name)
     web_chat(llm)
 
 

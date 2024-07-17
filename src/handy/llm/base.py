@@ -44,6 +44,8 @@ class BaseLLM:
     def clear_history(self):
         # delete the entire history
         self.history = []
+        if self.store_name is not None:
+            db.clear_chat_history(self.store_name)
 
     def convert_last(self):
         # the last history one may be a chunked response, if so replace with the data
@@ -74,3 +76,4 @@ class BaseLLM:
                 # write this to the db
                 for exchange in self.history:
                     db.add_exchange(self.store_name, exchange[0], exchange[1])
+

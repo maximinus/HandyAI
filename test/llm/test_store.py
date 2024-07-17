@@ -35,3 +35,9 @@ class TestChatDatabase(unittest.TestCase):
         db.create_chat('Chat 1')
         self.assertTrue(db.chat_exists('Chat 1'))
         self.assertFalse(db.chat_exists('Nonexistent Chat'))
+
+    def test_chat_deleted(self):
+        db.create_chat('Chat 1')
+        db.add_exchange('Chat 1', 'Hello!', 'Hi there!')
+        db.clear_chat_history('Chat 1')
+        self.assertFalse(db.chat_exists('Chat 1'))

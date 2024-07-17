@@ -102,11 +102,20 @@ class ChatDb:
         self.cursor.execute('SELECT 1 FROM chats WHERE name = ?', (name,))
         return self.cursor.fetchone() is not None
 
+    def clear_chat_history(self, name):
+        self.cursor.execute('SELECT id FROM chats WHERE name = ?', (name,))
+        chat = self.cursor.fetchone()
+        chat_id = chat[0]
+        # Delete exchanges associated with the chat
+        self.cursor.execute('DELETE FROM exchanges WHERE chat_id = ?', (chat_id,))
+        self.cursor.execute('DELETE FROM chats WHERE id = ?', (chat_id,))
+        self.conn.commit()
+
     def get_recent_chats(self, total_chats):
         self.cursor.execute('''
             SELECT * FROM chats
             ORDER BY last_update_time DESC
-            LIMIT ?''', (n,))
+            LIMIT ?''', (total_chats,))
         return self.cursor.fetchall()
 
 
