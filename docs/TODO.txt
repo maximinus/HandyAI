@@ -1,7 +1,7 @@
 Steps:
 
-1: Get the base query and chat responses working
-2: Allow them to be used with gradio front end
+* Get the base query and chat responses working
+* Allow them to be used with gradio front end
 3: Insert conversations into some kind of db
 4: Allow recall of conversations
 5: Add old conversations to gradio

@@ -1,6 +1,6 @@
 import unittest
 
-from handy.llm import db
+from handy.llm.store import db
 
 
 class TestChatDatabase(unittest.TestCase):

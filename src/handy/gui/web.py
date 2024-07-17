@@ -9,7 +9,7 @@ def gradio_response(llm_model: BaseLLM):
 
     def responder(message, history):
         nonlocal llm
-        # we actually don't need the history as we store it
+        # we actually don't need the history as we store it ourselves
         response = llm_model.chat(message)
         all_chunks = []
         for chunk in response:

@@ -33,12 +33,6 @@ class Ollama(BaseLLM):
         except (ollama.ResponseError, KeyError) as ex:
             raise LLMError(f'Error: {ex}')
 
-    def convert_last(self):
-        # the last history one may be a chunked response, if so replace with the data
-        if len(self.history) > 0:
-            if isinstance(self.history[-1][1], LLMResponse):
-                self.history[-1][1] = self.history[-1][1].response
-
     def get_history_in_ollama_format(self) -> list[dict]:
         self.convert_last()
         messages = []

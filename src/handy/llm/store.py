@@ -1,5 +1,8 @@
+import string
+import random
 import os.path
 import sqlite3
+
 from datetime import datetime
 
 DATABASE_FILE = '~/.handy/chat_db.sqlite'
@@ -98,6 +101,14 @@ class ChatDb:
     def chat_exists(self, name):
         self.cursor.execute('SELECT 1 FROM chats WHERE name = ?', (name,))
         return self.cursor.fetchone() is not None
+
+
+def generate_unique_name():
+    name = ''
+    while name != '' and db.chat_exists(name):
+        characters = string.ascii_letters + string.digits
+        name = ''.join(random.choice(characters) for _ in range(32))
+    return name
 
 
 db = ChatDb()
