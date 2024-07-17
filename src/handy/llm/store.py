@@ -36,8 +36,21 @@ class ChatDb:
             make_tables(self.cursor)
 
     def use_memory(self):
-        # mainly used for testing
-        pass
+        # mainly used for testing - this will reset any current db
+        self.conn.close()
+        self.conn = sqlite3.connect(':memory:')
+        self.cursor = self.conn.cursor()
+        make_tables(self.cursor)
+
+    def create_chat(self, name):
+        start_time = datetime.now()
+        last_update_time = start_time
+        self.cursor.execute('''
+            INSERT INTO chats (name, start_time, last_update_time)
+            VALUES (?, ?, ?)
+            ''', (name, start_time, last_update_time))
+        self.conn.commit()
+        return name
 
     def add_exchange(self, chat_name, user_text, reply_text):
         self.cursor.execute('SELECT id FROM chats WHERE name = ?', (chat_name,))
@@ -46,11 +59,7 @@ class ChatDb:
         start_time = datetime.now()
         if chat is None:
             # no chat entry, update it
-            last_update = start_time
-            self.cursor.execute('''
-                INSERT INTO chats (name, start_time, last_update)
-                VALUES (?, ?, ?)''', (chat_name, start_time, last_update))
-            self.conn.commit()
+            self.create_chat(chat_name)
             chat_id = self.cursor.lastrowid
         else:
             chat_id = chat[0]
