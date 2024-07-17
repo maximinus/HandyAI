@@ -22,3 +22,4 @@ class TestLanceRag(unittest.TestCase):
         pass
 
     def test_get_nearest(self):
+        pass
