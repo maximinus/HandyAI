@@ -1,12 +1,5 @@
 from handy.llm.store import db, generate_unique_name
-
-
-class LLMError(Exception):
-    pass
-
-
-class LLMChatExists(LLMError):
-    pass
+from handy.exceptions import LLMChatExists
 
 
 class LLMResponse:
