@@ -1,7 +1,8 @@
+import json
+
 import ollama
 from .base import BaseLLM, LLMResponse
 from handy.exceptions import LLMError
-from handy.tools import check_tool_response
 
 
 # TODO: difference between system, user or message?
@@ -68,7 +69,13 @@ class Ollama(BaseLLM):
 
 def check_tool_response(response, tools):
     # this has to be in the Ollama section as a different llm may reply differently
-    pass
+    if not response.startswith('[TOOL CALLS]'):
+        return response
+    tool_calls = json.loads(response[12:].strip())
+    tool_dict = {x.name:x for x in tools}
+    for call in tool_calls:
+        if call['name'] in tool_dict:
+            tool_dict[call['name']].call_function(response['arguments'])
 
 
 def get_base_models():
