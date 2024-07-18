@@ -80,3 +80,5 @@ class BaseLLM:
                 for exchange in self.history:
                     db.add_exchange(self.store_name, exchange[0], exchange[1])
 
+    def solve(self, task, tools=None):
+        pass

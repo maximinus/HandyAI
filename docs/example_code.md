@@ -66,6 +66,17 @@ This can be cleared:
 This will also clear the history in the db.
 
 
+Query with functions
+--------------------
+
+In this case we are not asking the LLM for a conversational chat, we are asking it to solve some issue.
+When a function is called, the result of that function is the input to the same LLM.
+
+    llm.solve(task, tools=None)
+
+Where task is a text description, and tools is a list of tools
+
+
 When we want to remember
 ------------------------
 

@@ -54,6 +54,12 @@ class Ollama(BaseLLM):
     def get_embedding(self, text):
         return ollama.embeddings(model=self.model_name, prompt=text)
 
+    def solve(self, task, tools=None):
+        # if there are no tools, this is just a simple query
+        if tools is None:
+            return self.query(task)
+        return OllamaResponse(ollama.generate(model=self.model_name, prompt=task, raw=True, stream=True))
+
 
 def get_base_models():
     models = ollama.list()
