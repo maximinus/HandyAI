@@ -14,6 +14,9 @@ We want the functionality to be simple, so that it is easy to make what you want
 
 What Handy is doing under the hood should be easy to reason, so that it makes using it easier.
 
+**4: Handy is built for local LLM**
+
+Although non-local is allowed, it is not the default setting
 
 
 Example Code
