@@ -1,5 +1,5 @@
+from handy.exceptions import ChatExists
 from handy.llm.store import db, generate_unique_name
-from handy.exceptions import LLMChatExists
 
 
 class LLMResponse:
@@ -49,7 +49,7 @@ class BaseLLM:
             if self.store_name is not None:
                 db.add_exchange(self.store_name, self.history[-1][0], self.history[-1][1])
 
-    def get_embedding(self):
+    def get_embedding(self, text):
         pass
 
     def __del__(self):
@@ -64,7 +64,7 @@ class BaseLLM:
         self.store_name = name
         if db.chat_exists(name):
             if len(self.history) > 0:
-                raise LLMChatExists('Cannot use store at it exists already and we have chat history')
+                raise ChatExists('Cannot use store at it exists already and we have chat history')
             else:
                 self.history = db.get_chat_exchanges(self.store_name)
         else:

@@ -30,6 +30,10 @@ class TestToolJson(unittest.TestCase):
 
     def test_extracts_function_name(self):
         tool = Tool(get_weather2)
-        print(tool.json_string)
         data = json.loads(tool.json_string)
         self.assertTrue('function' in data)
+
+    def test_name_is_correct(self):
+        tool = Tool(get_weather2)
+        data = json.loads(tool.json_string)
+        self.assertEqual(data['function']['name'], 'get_weather2')

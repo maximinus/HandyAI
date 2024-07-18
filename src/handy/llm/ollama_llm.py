@@ -1,5 +1,7 @@
 import ollama
-from .base import BaseLLM, LLMResponse, LLMError
+from .base import BaseLLM, LLMResponse
+from handy.exceptions import LLMError
+from handy.tools import check_tool_response
 
 
 # TODO: difference between system, user or message?
@@ -58,7 +60,15 @@ class Ollama(BaseLLM):
         # if there are no tools, this is just a simple query
         if tools is None:
             return self.query(task)
-        return OllamaResponse(ollama.generate(model=self.model_name, prompt=task, raw=True, stream=True))
+        tool_details = ','.join([x.json_string for x in tools])
+        full_prompt = f'[AVAILABLE_TOOLS][{tool_details}][/AVAILABLE_TOOLS][INST]{task}[/INST]'
+        response = OllamaResponse(ollama.generate(model=self.model_name, prompt=full_prompt, raw=True, stream=True))
+        check_tool_response(response.response, tools)
+
+
+def check_tool_response(response, tools):
+    # this has to be in the Ollama section as a different llm may reply differently
+    pass
 
 
 def get_base_models():

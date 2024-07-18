@@ -2,6 +2,10 @@ class HandyError(Exception):
     pass
 
 
+class LLMError(HandyError):
+    pass
+
+
 class ChatExists(HandyError):
     pass
 
@@ -15,4 +19,8 @@ class ToolDescriptionError(HandyError):
 
 
 class ToolMissingParamDescription(HandyError):
+    pass
+
+
+class ToolCallMissingParam(HandyError):
     pass
